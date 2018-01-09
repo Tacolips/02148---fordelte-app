@@ -1,0 +1,58 @@
+package shooter;
+import java.awt.CardLayout;
+import java.awt.EventQueue;
+
+import javax.swing.JFrame;
+
+import org.jspace.*;
+
+public class Main extends JFrame {
+private static final long serialVersionUID = 1L;	
+public static final int port = 31146;
+public static final String host = "localhost";
+public static final int WIDTH = 1250, HEIGHT = 800;
+	private JFrame jframe;
+	private CardLayout cardLayout;		
+	
+	public Main() {
+		jframe = new JFrame("V. 01");
+		cardLayout = new CardLayout();
+		
+		jframe.setDefaultCloseOperation(jframe.EXIT_ON_CLOSE);
+		jframe.setBounds(200,100,WIDTH,HEIGHT);
+		jframe.setResizable(false);
+		jframe.setVisible(true);
+		jframe.getContentPane().setLayout(new CardLayout(0,0));
+	
+//        // create a repository
+//        String uri = "tcp://localhost:" + port + "/?conn";
+//        SpaceRepository repository = new SpaceRepository();
+//        repository.addGate(uri);
+//        Space board = new SequentialSpace();
+//        repository.add("board", board);
+//        // keep the tuple space open
+//        try {
+//            board.get(new ActualField("done"));
+//        } catch (InterruptedException e) {}
+	}
+	
+	public static void main(String[] args) {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					Main window = new Main();
+					window.pack();
+					window.jframe.setVisible(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+	
+	
+}
+		
+	
+	
+

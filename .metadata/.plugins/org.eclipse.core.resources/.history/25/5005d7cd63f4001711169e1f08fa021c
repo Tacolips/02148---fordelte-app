@@ -1,0 +1,10 @@
+package shooter;
+
+import org.jspace.*;
+
+public class Shooter{
+	
+	public Shooter(Space space, int player) {
+		
+	}
+}

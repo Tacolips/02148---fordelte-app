@@ -1,0 +1,10 @@
+package shooter;
+
+import org.jspace.*;
+
+public class GamePanel{
+	
+	public GamePanel(Space space, int player) {
+		
+	}
+}

@@ -1,0 +1,114 @@
+package opgave3;
+import java.util.Arrays;
+
+import org.jspace.*;
+
+
+public class main3me {
+	public static void main(String[] args) {
+		Space space = new SequentialSpace();
+		int[] arr = {5,4,3,2,1,9,12};
+		int N = 2, M = 2;
+		
+		try {
+			space.put("sort",arr,arr.length);
+			space.put("lock");
+			
+			for (int i = 0; i < N; i++) {new Thread(new worker(space,i)).start();}
+			for (int i = 0; i < M; i++) {new Thread(new sorter(space,i)).start();}
+			
+			System.out.println("created workers");
+			Object[] res = space.get(new ActualField("done"), new FormalField(Object.class), new FormalField(Integer.class));
+			System.out.println("done");
+			
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+}
+
+class worker implements Runnable {
+	public Space space;
+	public int me;
+	public worker(Space space, int me) {
+		this.space = space;
+		this.me = me;
+	}
+	
+	@Override
+	public void run() {
+		while(true) {
+			try {
+				Object[] part = space.get(new ActualField("sort"), new FormalField(Object.class), new FormalField(Integer.class));
+				int [] arr = (int[]) part[1];
+				int len = arr.length;
+				int resultLen = (int) part[2];
+				if (arr.length != 1) {
+					int[] splitA = Arrays.copyOfRange(arr, 0, len/2);
+					int[] splitB = Arrays.copyOfRange(arr, len/2, len);
+					space.put("sort", splitA, resultLen);
+					space.put("sort", splitB, resultLen);
+					System.out.println(Arrays.toString(splitA));
+					System.out.println(Arrays.toString(splitB));
+				} else {
+					space.put("merge",arr, resultLen);
+				}
+				
+			} catch(Exception e) {
+				
+			}
+		}
+	}
+}
+
+class sorter implements Runnable {
+	public Space space;
+	public int me;
+	public sorter(Space space, int me) {
+		this.space = space;
+		this.me = me;
+	}
+	
+	@Override
+	public void run() {
+		while(true) {
+			try {
+				Object[] partA = space.get(new ActualField("merge"), new FormalField(Object.class), new FormalField(Integer.class));
+				int[] arrA = (int[]) partA[1];
+				int lenA = arrA.length;
+				int resultLen = (int) partA[2];
+				if (lenA != resultLen) {
+					Object[] partB = space.get(new ActualField("merge"), new FormalField(Object.class), new FormalField(Integer.class));
+					int[] arrB = (int[]) partB[1];
+					int lenB = arrB.length;
+					int[] arrC = new int[lenA+lenB];
+					int acounter = 0, bcounter = 0;
+					System.out.println("merger "+ Arrays.toString(arrA) + " med "+ Arrays.toString(arrB));
+					for (int i = 0; i < arrC.length; i++) {
+						System.out.println(me + " " + i);
+						if (arrA[acounter] < arrB[bcounter]) {
+							arrC[i] = arrA[acounter];
+							if (acounter < lenA) acounter++;
+						}
+						else {
+							arrC[i] = arrB[bcounter];
+							if (bcounter < lenB) bcounter++;
+						}
+					}
+					System.out.println("got "+ Arrays.toString(arrC));
+					space.put("merge", arrC, resultLen);
+				} else {
+					space.put("done",arrA, lenA);
+				}
+				
+				
+				
+				
+				
+			} catch(Exception e) {
+				
+			}
+		}
+	}
+}
+

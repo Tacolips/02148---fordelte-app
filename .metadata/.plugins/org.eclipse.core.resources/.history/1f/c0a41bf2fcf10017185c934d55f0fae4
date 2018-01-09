@@ -1,0 +1,9 @@
+package shooter;
+
+
+public class Shooter {
+	
+	public Shooter(Space space, int player) {
+		
+	}
+}
