@@ -22,9 +22,8 @@ public static final String[] connect = {"31145","localhost"};
 	
 	public Main(String[] in) { // GUI klassen
 		super("V 0.1");
-		String[] onCreate = {in[0], connect[0], connect[1]};
 		cardLayout = new CardLayout();
-		login = new LoginMenu(onCreate);
+		login = new LoginMenu(connect);
 		content = new JPanel(cardLayout);
 		content.add(login, loginKey);
 		cardLayout.show(content,loginKey);

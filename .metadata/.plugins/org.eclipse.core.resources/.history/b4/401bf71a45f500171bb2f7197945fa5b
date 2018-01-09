@@ -44,8 +44,8 @@ private GamePanel gamePanel;
 		this.board = space;
 		this.gamePanel = panel;
 		try {
-			board.put("player");
-			board.put("playe");
+			board.put("player 1");
+			board.put("player 2");
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -54,13 +54,10 @@ private GamePanel gamePanel;
 	public void run() {
 		while(true) {
 			try {
-				board.get(new ActualField("player 1"));
+				board.get(new ActualField("done"));
 //				Object[] opdate = board.get(new ActualField("update"), new FormalField(Object.class));
-				System.out.println("Player 1 joined");
+				System.out.println("running");
 				
-				board.get(new ActualField("player 2"));
-				System.out.println("Player 2 joined");
-				System.out.println("Game started");
 				board.put("done");
 			} catch (InterruptedException e) {}			
 		}

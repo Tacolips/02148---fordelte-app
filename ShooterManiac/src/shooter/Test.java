@@ -3,8 +3,10 @@ package shooter;
 public class Test {
 	public static void main(String[] args) {
 		String[] gameString = {"31145", "localhost"};
+		String[] playerOne = {"player 1","31145", "localhost"};
+		String[] playerTwo = {"player 2","31145", "localhost"}; 
 		GamePanel.main(gameString);
-		Main.main(args);
-		Main.main(args);
+		Main.main(playerOne);
+		Main.main(playerTwo);
 	}
 }

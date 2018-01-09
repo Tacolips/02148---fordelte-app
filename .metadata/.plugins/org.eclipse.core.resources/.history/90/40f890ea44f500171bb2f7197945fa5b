@@ -14,7 +14,6 @@ import org.jspace.Space;
 public class LoginMenu extends JPanel {
 private static final long serialVersionUID = 1L;
 private Space board;
-private String player;
 	
 	private static Main main;
 	
@@ -25,13 +24,13 @@ private String player;
 		
 		
 		 // connect to tuple space
-		int port = Integer.parseInt(in[1]);
-		String host = in[2];
-		player = in[0];
+		int port = Integer.parseInt(in[0]);
+		String host = in[1];
         try {
            String uri = "tcp://" + host + ":" + port + "/board?conn";
            board = new RemoteSpace(uri);
         } catch (IOException e) {}
+		
 		
         
 		JButton csButton = new JButton("Hero Selection");
@@ -42,8 +41,7 @@ private String player;
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			try {
-				board.put(player);
-				
+				board.put("done");
 			} catch (InterruptedException e1) {
 				e1.printStackTrace();
 			}
@@ -51,4 +49,8 @@ private String player;
 		
 
 	}
+	
+	
+	
+
 }
