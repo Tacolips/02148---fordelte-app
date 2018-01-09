@@ -55,7 +55,7 @@ private GamePanel gamePanel;
 		while(true) {
 			try {
 //			Object[] opdate = board.get(new ActualField("update"), new FormalField(Object.class));
-			System.out.println("running");
+				System.out.println("running");
 				
 			board.put("done");
 			} catch (InterruptedException e) {}			
