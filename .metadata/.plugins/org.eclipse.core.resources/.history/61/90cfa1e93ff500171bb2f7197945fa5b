@@ -13,7 +13,6 @@ private static final long serialVersionUID = 1L;
 //public static final int port = 31146;
 //public static final String host = "localhost";
 public static final int WIDTH = 1250, HEIGHT = 800;
-public static final String[] connect = {"31145","localhost"};
 	private CardLayout cardLayout;
 	private LoginMenu login;
 	private JPanel content;
@@ -23,7 +22,7 @@ public static final String[] connect = {"31145","localhost"};
 	public Main() { // GUI klassen
 		super("V 0.1");
 		cardLayout = new CardLayout();
-		login = new LoginMenu(connect);
+		login = new LoginMenu();
 		content = new JPanel(cardLayout);
 		content.add(login, loginKey);
 		cardLayout.show(content,loginKey);

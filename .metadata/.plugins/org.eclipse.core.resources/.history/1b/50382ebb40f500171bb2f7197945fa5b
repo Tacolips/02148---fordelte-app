@@ -13,7 +13,6 @@ import org.jspace.Space;
 
 public class LoginMenu extends JPanel {
 private static final long serialVersionUID = 1L;
-private Space board;
 	
 	private static Main main;
 	
@@ -22,6 +21,7 @@ private Space board;
 		setBorder(new EmptyBorder(5, 5, 5, 5));
 		setLayout(null);
 		
+		Space board = null;
 		
 		 // connect to tuple space
 		int port = Integer.parseInt(in[0]);

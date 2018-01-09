@@ -13,7 +13,6 @@ import org.jspace.Space;
 
 public class LoginMenu extends JPanel {
 private static final long serialVersionUID = 1L;
-private Space board;
 	
 	private static Main main;
 	
@@ -23,16 +22,16 @@ private Space board;
 		setLayout(null);
 		
 		
+		
 		 // connect to tuple space
 		int port = Integer.parseInt(in[0]);
 		String host = in[1];
         try {
            String uri = "tcp://" + host + ":" + port + "/board?conn";
-           board = new RemoteSpace(uri);
+           Space board = new RemoteSpace(uri);
         } catch (IOException e) {}
 		
 		
-        
 		JButton csButton = new JButton("Hero Selection");
 		csButton.setBounds(590, 250, 120, 25);
 		add(csButton);
@@ -40,11 +39,8 @@ private Space board;
 		csButton.addActionListener(new ActionListener() {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			try {
-				board.put("done");
-			} catch (InterruptedException e1) {
-				e1.printStackTrace();
-			}
+//			String[] args = {""
+//			GamePanel.main(args);
 		}});
 		
 

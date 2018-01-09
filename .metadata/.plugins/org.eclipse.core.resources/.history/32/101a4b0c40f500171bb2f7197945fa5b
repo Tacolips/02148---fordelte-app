@@ -13,11 +13,11 @@ private static Manager manager;
         int port = 31145;
         if (args.length < 1 || args.length > 2) {
             System.out.println("Wrong number of arguments");
-            System.out.println("Usage: java -jar run main.jar [port] [host]");
+            System.out.println("Usage: java -jar run main.jar <number of players> [port]");
             return;
         }
         if (args.length >= 2) {
-            port = Integer.parseInt(args[0]);
+            port = Integer.parseInt(args[1]);
         }
         GamePanel game = new GamePanel(port);
         
@@ -54,11 +54,10 @@ private GamePanel gamePanel;
 	public void run() {
 		while(true) {
 			try {
-				board.get(new ActualField("done"));
-//				Object[] opdate = board.get(new ActualField("update"), new FormalField(Object.class));
-				System.out.println("running");
+//			Object[] opdate = board.get(new ActualField("update"), new FormalField(Object.class));
+			System.out.println("running");
 				
-				board.put("done");
+			board.put("done");
 			} catch (InterruptedException e) {}			
 		}
 	}
