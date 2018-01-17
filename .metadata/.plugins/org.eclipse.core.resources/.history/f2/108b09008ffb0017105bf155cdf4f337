@@ -1,0 +1,14 @@
+package shooter;
+
+import javax.swing.JPanel;
+
+import org.jspace.*;
+
+public class Game extends JPanel {
+private static Space board;
+
+	public Game() {
+
+	}
+
+}

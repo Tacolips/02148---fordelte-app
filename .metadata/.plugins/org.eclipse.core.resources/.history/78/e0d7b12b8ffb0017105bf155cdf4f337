@@ -1,0 +1,170 @@
+package shooter;
+
+import java.awt.Image;
+import java.awt.Rectangle;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.plaf.synth.SynthSpinnerUI;
+
+import org.jspace.ActualField;
+import org.jspace.FormalField;
+import org.jspace.RemoteSpace;
+import org.jspace.Space;
+
+public class GamePanel extends JPanel implements KeyListener {
+private static final long serialVersionUID = 1L;
+private static Space board;
+private static String player, other;
+private static String playerPath, otherPath;
+private static Rectangle pos, pos2;
+private static JLabel playerSprite, otherSprite;
+private static ImageIcon otherImg, playerImg;
+
+
+	public GamePanel() {
+		setBounds(0, 0, 1280, 720);
+		setLayout(null);
+		System.out.println("GamePanel Created");
+		
+		player = ""; // Bruges som tag, hvis du spiller som player 1 skal du hente updates fra player 2
+		other = ""; // Bruges som field i get fra space
+		
+		// sæt start position for spiller (skal sættes til ny hvis det er player 2 der joiner)
+		pos = new Rectangle(20, 360, 50, 50); // Start position		
+		playerSprite = new JLabel("player");
+		playerSprite.setBounds(pos);
+		try {
+			BufferedImage img = ImageIO.read(LoginPanel.class.getResource("/shooter/playerOne/Idle__000.png"));
+			Image scaleImg = img.getScaledInstance(playerSprite.getWidth(), playerSprite.getHeight(), Image.SCALE_SMOOTH);
+			playerImg = new ImageIcon(scaleImg);
+			playerSprite.setIcon(playerImg);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		add(playerSprite);
+		
+		// Anden spillers position (kun til initialisering)
+		otherSprite = new JLabel("other");
+		add(otherSprite);
+	}
+	
+	
+	// Sætter op en forbindelse mellem det oprettede space (se i LoginPanel)
+	public void setUpConnection(String Uri) {
+		try {
+			board = new RemoteSpace(Uri);
+			Object[] in = board.get(new ActualField("started"), new FormalField(Object.class));
+			player = (String) in[1];
+			setUpPlayer();
+	}
+	
+	// Vælger den mappe som spilleren skal hente sprites fra
+	public void setUpPlayer() {
+		if (player.equals("player 1")) {
+			other = "player 2";
+			playerPath = "/shooter/playerOne/Idle__000.png";
+			otherPath = "/shooter/playerTwo/Idle (1).png";
+		}
+		else if (player.equals("player 2")) {
+			other = "player 1";
+			playerPath =  "/shooter/playerTwo/Idle (1).png";
+			otherPath = "/shooter/playerOne/Idle__000.png";
+		}
+		ListenForUpdate();
+	}
+	
+	// opretter en ny thread til at hente updates fra den anden spiller
+	public void ListenForUpdate() {
+		Thread updates = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				while (true) {
+					try {
+						Object[] update = board.get(new ActualField(other), new FormalField(Object.class));
+						otherSprite = (JLabel) update[1];
+					} catch (Exception e) {
+						e.printStackTrace();
+					}				
+				}
+			}
+		});
+		updates.start();
+	}
+	
+	public void gamePanel(Space b) {
+		board = b;
+		while (true) {
+			try {
+				board.get(new ActualField("ticket"));
+//				Object[] playerOne = board.get(new ActualField(player), new FormalField(Object.class), new FormalField(Object.class));
+				Object[] playerTwo = board.get(new ActualField(other), new FormalField(Object.class), new FormalField(Object.class));
+//				pos = (Rectangle) playerOne[1];
+				pos2 = (Rectangle) playerTwo[1];
+				otherPath = (String) playerTwo[2];
+				System.out.println("got other");
+				
+				BufferedImage img = ImageIO.read(LoginPanel.class.getResource(playerPath));
+				Image scaleImg = img.getScaledInstance(playerSprite.getWidth(), playerSprite.getHeight(), Image.SCALE_SMOOTH);
+				playerImg = new ImageIcon(scaleImg);
+				playerSprite.setIcon(playerImg);
+				
+				
+				
+				BufferedImage imgTwo = ImageIO.read(LoginPanel.class.getResource(otherPath));
+				Image scaleImgTwo = imgTwo.getScaledInstance(otherSprite.getWidth(), otherSprite.getHeight(), Image.SCALE_SMOOTH);
+				otherImg = new ImageIcon(scaleImgTwo);
+				otherSprite.setIcon(otherImg);
+				
+				board.put(player,pos,playerPath);
+				board.put(other,pos2,otherPath);
+				board.put("ticket");
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	protected void animations() {
+		int id = 1;
+		while (true) {
+			System.out.println("");
+			if (true) {
+				try {
+					String imgUrl = "playerOne/Slide__00"+id+".png";
+					BufferedImage img = ImageIO.read(this.getClass().getResource(imgUrl));
+					
+					Image scaleImg = img.getScaledInstance(playerSprite.getWidth(), playerSprite.getHeight(), Image.SCALE_SMOOTH);
+					ImageIcon platIcon = new ImageIcon(scaleImg);
+					playerSprite.setIcon(platIcon);
+					if (id == 9) {id =0;}
+					id++;
+					
+				} catch (Exception e2) {
+					e2.printStackTrace();
+				}
+			}
+		}
+	}
+
+
+	@Override
+	public void keyPressed(KeyEvent e) {
+	}
+	@Override
+	public void keyReleased(KeyEvent arg0) {
+	}
+	@Override
+	public void keyTyped(KeyEvent arg0) {
+	}
+}
+
+class fetcher {
+	
+}

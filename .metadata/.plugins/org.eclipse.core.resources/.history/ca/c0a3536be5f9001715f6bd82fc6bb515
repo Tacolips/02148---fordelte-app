@@ -1,0 +1,35 @@
+package shooter;
+
+import org.jspace.*;
+
+public class Manager implements Runnable {
+public static Space board;
+	public Manager(Space space) {
+		this.board = space;
+		try {
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	@Override
+	public void run() {
+		while(true) {
+			try {
+				board.get(new ActualField("player 1"));
+				System.out.println("Player 1 joined");
+				
+				board.get(new ActualField("player 2"));
+				System.out.println("Player 2 joined");
+				System.out.println("Game started");
+				board.put("done");
+			} catch (InterruptedException e) {}			
+		}
+	}
+	
+	public static Space getBoard() {
+		return board;
+	}
+	
+}

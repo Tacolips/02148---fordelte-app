@@ -1,0 +1,73 @@
+package shooter;
+import java.awt.CardLayout;
+import java.awt.EventQueue;
+import java.io.IOException;
+
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+
+import org.jspace.*;
+
+public class Main extends JFrame {
+private static final long serialVersionUID = 1L;	
+//public static final int port = 31146;
+//public static final String host = "localhost";
+public static final int WIDTH = 1250, HEIGHT = 800;
+public static final String[] connect = {"31145","localhost"};
+	private LoginMenu login;
+	private LoginPanel loginPanel;
+	private GameFrame game;
+	public static CardLayout cardLayout;
+	public static JPanel content;
+	
+	public static String loginKey = "login";
+	public static String loginPanelKey = "loginPanel";
+	public static String gameKey = "game";
+	
+	private String[] in;
+	
+	public Main() { // GUI klassen
+		super("V 0.1");
+		cardLayout = new CardLayout();
+		login = new LoginMenu(in);
+		loginPanel = new LoginPanel();
+		game = new GameFrame();
+		
+		// setup the contant pane
+		content = new JPanel(cardLayout);
+		content.add(loginPanel, loginPanelKey);
+		content.add(login, loginKey);
+		content.add(game, gameKey);
+		cardLayout.show(content,loginPanelKey);
+		
+
+		
+		
+		this.add(content);
+		this.setBounds(100, 100, 1285, 753);
+		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	}
+	
+	public static void main(String[] args) {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					Main frame = new Main();
+					frame.setVisible(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+	
+	public static void showCard(String key) {
+		cardLayout.show(content, key);
+	}
+	
+	
+}
+		
+	
+	
+

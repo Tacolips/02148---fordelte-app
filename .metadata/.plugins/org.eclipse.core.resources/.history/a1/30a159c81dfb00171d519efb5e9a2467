@@ -1,0 +1,235 @@
+package shooter;
+
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Image;
+import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.net.UnknownHostException;
+
+import javax.imageio.ImageIO;
+import javax.swing.ButtonGroup;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.border.EmptyBorder;
+
+import org.jspace.RemoteSpace;
+import org.jspace.SequentialSpace;
+import org.jspace.Space;
+import org.jspace.SpaceRepository;
+
+import javax.swing.JRadioButton;
+import javax.swing.JLabel;
+import javax.swing.JCheckBox;
+import javax.swing.Icon;
+
+public class LoginPanel extends JPanel {
+	private static final long serialVersionUID = 1L;
+	private JTextField ipTextField;
+	private static Rectangle position;
+	public String player;
+	public static Boolean selectedPlayer;
+	private static JLabel playerOneSprite;
+	private static JRadioButton radio_player_1, radio_player_2;
+	
+	
+	public LoginPanel() {
+		setBounds(0, 0, 1280, 720);
+		setBorder(new EmptyBorder(5, 5, 5, 5));
+		setLayout(null);
+		selectedPlayer = true;
+		
+		Thread animatorThread = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				animations();
+			}
+		});
+		animatorThread.start();
+		
+		System.out.println("LoginPanel created");
+		
+		try {
+			BufferedImage wPic = ImageIO.read(this.getClass().getResource("playerplat.png"));
+			JLabel platLabel = new JLabel(new ImageIcon(wPic));
+			platLabel.setBounds(502, 497, 114, 56);
+			
+			JLabel playerTwoLabel = new JLabel((Icon) null);
+			playerTwoLabel.setBounds(672, 497, 114, 56);
+			
+			
+			Image scaleImg = wPic.getScaledInstance(platLabel.getWidth(), platLabel.getHeight(), Image.SCALE_SMOOTH);
+			ImageIcon platIcon = new ImageIcon(scaleImg);
+			platLabel.setIcon(platIcon);
+			playerTwoLabel.setIcon(platIcon);
+			add(platLabel);
+			add(playerTwoLabel);
+		} catch (Exception e2) {
+			e2.printStackTrace();
+		}
+		
+		JButton startButton = new JButton("Craete game");
+		startButton.setBounds(565, 173, 166, 44);
+		add(startButton);
+		
+		JTextField usernameField = new JTextField();
+		usernameField.setText("Username");
+		usernameField.setToolTipText("Username");
+		usernameField.setBounds(590, 225, 120, 25);
+		add(usernameField);
+		
+		JRadioButton radio_Player_1 = new JRadioButton("");
+		radio_Player_1.setSelected(true);
+		radio_Player_1.setBounds(545, 309, 25, 25);
+		add(radio_Player_1);
+		
+		JRadioButton radio_Player_2 = new JRadioButton("");
+		radio_Player_2.setBounds(706, 309, 25, 25);
+		add(radio_Player_2);
+		
+		ButtonGroup playerSelect = new ButtonGroup();
+		playerSelect.add(radio_Player_1);
+		playerSelect.add(radio_Player_2);
+		
+		JLabel lblPlayer = new JLabel("Player 1");
+		lblPlayer.setBounds(535, 284, 56, 16);
+		add(lblPlayer);
+		
+		JLabel lblPlayer_1 = new JLabel("Player 2");
+		lblPlayer_1.setBounds(700, 284, 56, 16);
+		add(lblPlayer_1);
+		
+		JCheckBox singlePlayerBox = new JCheckBox("");
+		singlePlayerBox.setBounds(700, 650, 25, 25);
+		add(singlePlayerBox);
+		
+		JLabel singlePlayerLabel = new JLabel("I Hunt Alone");
+		singlePlayerLabel.setBounds(590, 650, 76, 16);
+		add(singlePlayerLabel);
+		
+		ipTextField = new JTextField();
+		ipTextField.setText("localhost:31145");
+		ipTextField.setBounds(535, 595, 221, 22);
+		add(ipTextField);
+		ipTextField.setColumns(10);
+		
+		JLabel ipLabel = new JLabel("IP: tcp://");
+		ipLabel.setBounds(610, 566, 56, 16);
+		add(ipLabel);
+		
+		JButton joinButton = new JButton("Join");
+		joinButton.setBounds(594, 623, 97, 25);
+		add(joinButton);
+		
+		JLabel lblNewLabel_1 = new JLabel("New label");
+		lblNewLabel_1.setBounds(672, 394, 114, 100);
+		add(lblNewLabel_1);
+		
+
+		playerOneSprite = new JLabel(new ImageIcon("Slide__000.pmg"));
+		playerOneSprite.setBounds(502, 394, 114, 100);
+		add(playerOneSprite);
+		
+		
+		startButton.addActionListener(new ActionListener() {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			try {
+				String uri = "tcp://" + ipTextField.getText()+"/?conn";
+				
+				// create a repository
+				SpaceRepository repository = new SpaceRepository();
+				repository.addGate(uri);
+				Space board = new SequentialSpace();
+				repository.add("board", board);
+				System.out.println("got here");
+				
+				String newUri = "tcp://"+ipTextField.getText()+"/board?conn";
+				Space boardGame = new RemoteSpace(newUri);
+				
+				if (radio_Player_1.isSelected()) {
+					player = "player 1";
+					position = new Rectangle(10,10,125,50);
+				} 
+				else {
+					player = "player 2";
+					position = new Rectangle(500,10,125,50);
+				}
+				boardGame.put("started",player, position);
+				Main.getGamePanel().setUpConnection(newUri);
+				Main.showCard("game");
+			} catch(Exception e1) {
+				System.out.println("Failed to create server");
+			};
+
+		}});
+		
+		joinButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				try {
+					String newUri = "tcp://"+ipTextField.getText()+"/board?conn";
+					Space boardGame = new RemoteSpace(newUri);
+					
+					if (radio_Player_1.isSelected()) {
+						player = "player 1";
+						position = new Rectangle(10,10,125,50);
+					} 
+					else {
+						player = "player 2";
+						position = new Rectangle(500,10,125,50);
+					}
+					boardGame.put("started",player, position);
+					Main.getGamePanel().setUpConnection(newUri);
+					Main.showCard("game");
+				} catch (Exception e1) {
+					System.out.println("failed to join server");
+					e1.printStackTrace();
+				}
+				
+			}
+		});
+		
+	}
+	
+
+	protected void animations() {
+		int id = 0;
+		while (true) {
+			if (radio_player_1.i) {
+				try {
+					String imgUrl = "Slide__00"+id+".png";
+					System.out.println(imgUrl);
+					BufferedImage img = ImageIO.read(this.getClass().getResource(imgUrl));
+										
+					Image scaleImg = img.getScaledInstance(playerOneSprite.getWidth(), playerOneSprite.getHeight(), Image.SCALE_SMOOTH);
+					ImageIcon platIcon = new ImageIcon(scaleImg);
+					playerOneSprite.setIcon(platIcon);
+					if (id == 9) {id =-1;}
+					id++;
+					Thread.sleep(50);
+				} catch (Exception e2) {
+					e2.printStackTrace();
+				}
+			}
+		}
+	}
+
+
+	public String getIP() {
+		return ipTextField.getText();
+	}
+	
+	
+	public void paintComponent(Graphics g) {
+		super.paintComponent(g);
+		
+		
+	}
+}

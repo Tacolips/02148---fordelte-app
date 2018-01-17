@@ -1,69 +1,144 @@
 package shooter;
 
+import java.awt.Image;
+import java.awt.Rectangle;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.plaf.synth.SynthSpinnerUI;
 
-import org.jspace.*;
+import org.jspace.ActualField;
+import org.jspace.FormalField;
+import org.jspace.RemoteSpace;
+import org.jspace.Space;
 
-public class GamePanel extends JPanel{
+public class GamePanel extends JPanel implements KeyListener {
 private static final long serialVersionUID = 1L;
-private static Manager manager;
+private static Space board;
+private static String player, other;
+private static String playerPath, otherPath;
+private static Rectangle pos, pos2;
+private static JLabel playerSprite, otherSprite;
+private static ImageIcon otherIcon, playerIcon;
 
-	public static void main(String[] args) {
-		 // parse arguments
-        int port = 31145;
-        if (args.length < 1 || args.length > 2) {
-            System.out.println("Wrong number of arguments");
-            System.out.println("Usage: java -jar run main.jar [port] [host]");
-            return;
-        }
-        if (args.length >= 2) {
-            port = Integer.parseInt(args[0]);
-        }
-        GamePanel game = new GamePanel(port);
-        
+
+	public GamePanel() {
+		setBounds(0, 0, 1280, 720);
+		setLayout(null);
+		System.out.println("GamePanel Created");
+		
+		player = ""; // Bruges som tag, hvis du spiller som player 1 skal du hente updates fra player 2
+		other = ""; // Bruges som field i get fra space
+		
+		// sæt start position for spiller (skal sættes til ny hvis det er player 2 der joiner)
+		pos = new Rectangle(20, 360, 75, 75); // Start position
+		pos2 = new Rectangle(1000, 360, 75, 75);
+		playerSprite = new JLabel("player");
+		playerSprite.setBounds(pos);
+		playerIcon = new ImageIcon(LoginPanel.class.getResource("/shooter/playerOne/Idle__000.png"));
+		playerSprite.setIcon(playerIcon);
+		add(playerSprite);
+		
+		// Anden spillers position (kun til initialisering)
+		otherSprite = new JLabel("other");
+//		otherSprite.setIcon(new ImageIcon(GamePanel.class.getResource("/shooter/playerTwo/Idle (1).png")));
+		otherSprite.setBounds(pos2);
+		add(otherSprite);
 	}
 	
-	public GamePanel(int port) {
-		// create a repository
-		String uri = "tcp://localhost:" + port + "/?conn";
-		SpaceRepository repository = new SpaceRepository();
-		repository.addGate(uri);
-		Space board = new SequentialSpace();
-		repository.add("board", board);
-		new Thread(new Manager(board, this)).start();
-		System.out.println("got here");
-	}
-
 	
-}
-
-class Manager implements Runnable {
-private Space board;
-private GamePanel gamePanel;
-	public Manager(Space space, GamePanel panel) {
-		this.board = space;
-		this.gamePanel = panel;
+	// Sætter op en forbindelse mellem det oprettede space (se i LoginPanel)
+	public void setUpConnection(String Uri) {
 		try {
-			board.put("player");
-			board.put("playe");
-		} catch (InterruptedException e) {
+			board = new RemoteSpace(Uri);
+			Object[] in = board.get(new ActualField("started"), new FormalField(Object.class));
+			player = (String) in[1];
+			setUpPlayer();
+		} catch(Exception ex) {}
+	}
+	
+	// Vælger den mappe som spilleren skal hente sprites fra
+	public void setUpPlayer() {
+		if (player.equals("player 1")) {
+			other = "player 2";
+			playerPath = "/shooter/playerOne/Idle__000.png";
+			otherPath = "/shooter/playerTwo/Idle (1).png";
+		}
+		else if (player.equals("player 2")) {
+			other = "player 1";
+			playerPath =  "/shooter/playerTwo/Idle (1).png";
+			otherPath = "/shooter/playerOne/Idle__000.png";
+			pos = pos2;
+			pos2 = new Rectangle(20, 360, 75, 75);
+		}
+		playerSprite.setIcon(new ImageIcon(LoginPanel.class.getResource(playerPath)));
+		otherSprite.setIcon(new ImageIcon(LoginPanel.class.getResource(otherPath)));
+		try {
+			board.put(player, playerPath, pos);
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		ListenForUpdate();
+		Update();
+	}
+	
+	// opretter en ny thread til at hente updates fra den anden spiller
+	public void ListenForUpdate() {
+		Thread updates = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				while (true) {
+					try {
+						Object[] update = board.get(new ActualField(other), new FormalField(Object.class), new FormalField(Object.class));
+						otherPath = (String) update[1];
+						pos2 = (Rectangle) update[2];
+						
+						otherSprite.setIcon(new ImageIcon(LoginPanel.class.getResource(otherPath)));
+						System.out.println("got the other");
+					} catch (Exception e) {
+						e.printStackTrace();
+					}				
+				}
+			}
+		});
+		updates.start();
+	}
+	
+	// keep updating positions
+	public void Update() {
+		Thread repositioner = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				while(true) {
+					playerSprite.setBounds(pos);
+					playerSprite.setIcon(new ImageIcon(LoginPanel.class.getResource(playerPath)));
+					otherSprite.setBounds(pos2);
+					otherSprite.setIcon(new ImageIcon(LoginPanel.class.getResource(otherPath)));
+				}
+			}
+		});
+		repositioner.start();
+	}
+	
+
+	@Override
+	public void keyPressed(KeyEvent e) {
+		System.out.println("a key was pressed");
 	}
 	@Override
-	public void run() {
-		while(true) {
-			try {
-				board.get(new ActualField("player 1"));
-//				Object[] opdate = board.get(new ActualField("update"), new FormalField(Object.class));
-				System.out.println("Player 1 joined");
-				
-				board.get(new ActualField("player 2"));
-				System.out.println("Player 2 joined");
-				System.out.println("Game started");
-				board.put("done");
-			} catch (InterruptedException e) {}			
-		}
+	public void keyReleased(KeyEvent arg0) {
 	}
+	@Override
+	public void keyTyped(KeyEvent arg0) {
+	}
+}
+
+class fetcher {
 	
 }

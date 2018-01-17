@@ -1,12 +1,10 @@
 package shooter;
 import java.awt.CardLayout;
 import java.awt.EventQueue;
-import java.io.IOException;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import org.jspace.*;
 
 public class Main extends JFrame {
 private static final long serialVersionUID = 1L;	
@@ -14,20 +12,29 @@ private static final long serialVersionUID = 1L;
 //public static final String host = "localhost";
 public static final int WIDTH = 1250, HEIGHT = 800;
 public static final String[] connect = {"31145","localhost"};
-	private CardLayout cardLayout;
-	private LoginMenu login;
-	private JPanel content;
+	public static LoginPanel loginPanel;
+	public static GamePanel gamePanel;
+	public static CardLayout cardLayout;
+	public static JPanel content;
 	
-	public String loginKey = "login";
 	
-	public Main(String[] in) { // GUI klassen
+	public static String loginPanelKey = "loginPanel";
+	public static String gameKey = "game";
+	
+	
+	public Main() { // GUI klassen
 		super("V 0.1");
-		String[] onCreate = {in[0], connect[0], connect[1]};
+		System.out.println("Main class created");
+		
 		cardLayout = new CardLayout();
-		login = new LoginMenu(onCreate);
+		loginPanel = new LoginPanel();
+		gamePanel = new GamePanel();
+		
+		// setup the contant pane
 		content = new JPanel(cardLayout);
-		content.add(login, loginKey);
-		cardLayout.show(content,loginKey);
+		content.add(loginPanel, loginPanelKey);
+		content.add(gamePanel,gameKey);
+		cardLayout.show(content,loginPanelKey);
 		
 
 		
@@ -36,12 +43,16 @@ public static final String[] connect = {"31145","localhost"};
 		this.setBounds(100, 100, 1285, 753);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
+
+	public static void showCard(String key) {
+		cardLayout.show(content, key);
+	}
 	
-	public static void main(String[] args) {
+	public static void main() {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					Main frame = new Main(args);
+					Main frame = new Main();
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -50,11 +61,13 @@ public static final String[] connect = {"31145","localhost"};
 		});
 	}
 	
-	public void showCard(String key) {
-		cardLayout.show(content, key);
+	public static LoginPanel getLoginPanel() {
+		return loginPanel;
 	}
 	
-	
+	public static GamePanel getGamePanel() {
+		return gamePanel;
+	}
 }
 		
 	

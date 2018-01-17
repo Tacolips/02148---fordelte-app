@@ -47,7 +47,7 @@ public class Philosopher {
             try {
                 // Get a ticket.
                 board.get(new ActualField("ticket"));
-                Thread.sleep(2000);
+                Thread.sleep(500);
                 // Wait until the left fork is ready (get the corresponding tuple).
                 board.get(new ActualField("fork"), new ActualField(left));
                 System.out.println("Philosopher " + me + " got left fork");

@@ -1,0 +1,145 @@
+package shooter;
+
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.net.UnknownHostException;
+
+import javax.swing.ButtonGroup;
+import javax.swing.JButton;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.border.EmptyBorder;
+
+import org.jspace.RemoteSpace;
+import org.jspace.SequentialSpace;
+import org.jspace.Space;
+import org.jspace.SpaceRepository;
+
+import javax.swing.JRadioButton;
+import javax.swing.JLabel;
+import javax.swing.JCheckBox;
+
+public class LoginPanel extends JPanel {
+	private static final long serialVersionUID = 1L;
+	private JTextField ipTextField;
+	public String player;
+	
+	
+	public LoginPanel() {
+		setBounds(0, 0, 1280, 720);
+		setBorder(new EmptyBorder(5, 5, 5, 5));
+		setLayout(null);
+		
+		
+		JButton startButton = new JButton("Craete game");
+		startButton.setBounds(590, 250, 120, 25);
+		add(startButton);
+		
+		JTextField usernameField = new JTextField();
+		usernameField.setText("Username");
+		usernameField.setToolTipText("Username");
+		usernameField.setBounds(590, 300, 120, 25);
+		add(usernameField);
+		
+		JRadioButton radio_Player_1 = new JRadioButton("");
+		radio_Player_1.setSelected(true);
+		radio_Player_1.setBounds(554, 386, 25, 25);
+		add(radio_Player_1);
+		
+		JRadioButton radio_Player_2 = new JRadioButton("");
+		radio_Player_2.setBounds(717, 386, 25, 25);
+		add(radio_Player_2);
+		
+		ButtonGroup playerSelect = new ButtonGroup();
+		playerSelect.add(radio_Player_1);
+		playerSelect.add(radio_Player_2);
+		
+		JLabel lblPlayer = new JLabel("Player 1");
+		lblPlayer.setBounds(535, 361, 56, 16);
+		add(lblPlayer);
+		
+		JLabel lblPlayer_1 = new JLabel("Player 2");
+		lblPlayer_1.setBounds(700, 361, 56, 16);
+		add(lblPlayer_1);
+		
+		JCheckBox singlePlayerBox = new JCheckBox("");
+		singlePlayerBox.setBounds(700, 650, 25, 25);
+		add(singlePlayerBox);
+		
+		JLabel singlePlayerLabel = new JLabel("I Hunt Alone");
+		singlePlayerLabel.setBounds(590, 650, 76, 16);
+		add(singlePlayerLabel);
+		
+		ipTextField = new JTextField();
+		ipTextField.setText("localhost:31145");
+		ipTextField.setBounds(535, 595, 221, 22);
+		add(ipTextField);
+		ipTextField.setColumns(10);
+		
+		JLabel ipLabel = new JLabel("IP: tcp://");
+		ipLabel.setBounds(610, 566, 56, 16);
+		add(ipLabel);
+		
+		JButton joinButton = new JButton("Join");
+		joinButton.setBounds(594, 623, 97, 25);
+		add(joinButton);
+		
+		
+		startButton.addActionListener(new ActionListener() {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			try {
+				String uri = "tcp://" + ipTextField.getText()+"/?conn";
+				
+				// create a repository
+				SpaceRepository repository = new SpaceRepository();
+				repository.addGate(uri);
+				Space board = new SequentialSpace();
+				repository.add("board", board);
+				System.out.println("got here");
+				
+				String newUri = "tcp://"+ipTextField.getText()+"/board?conn";
+				Space boardGame = new RemoteSpace(newUri);
+				new Thread(new Manager(boardGame)).start();
+				
+				if (radio_Player_1.isSelected()) {player = "player 1";} 
+				else {player = "player 2";}
+				boardGame.put(player);
+				Main.showCard("game");
+			} catch(Exception e1) {
+				System.out.println("Failed to create server");
+			};
+
+		}});
+		
+		joinButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				try {
+					String newUri = "tcp://"+ipTextField.getText()+"/board?conn";
+					Space boardGame = new RemoteSpace(newUri);
+					new Thread(new Manager(boardGame)).start();
+					
+					if (radio_Player_1.isSelected()) {player = "player 1";} 
+					else {player = "player 2";}
+					boardGame.put(player);
+					
+				} catch (Exception e1) {
+					System.out.println("failed to join server");
+					e1.printStackTrace();
+				}
+				
+			}
+		});
+		
+	}
+	
+	@Override
+	public void paintComponent(Graphics g) {
+		g.setColor(Color.BLACK);
+		g.drawRect(700, 50, 100, 100);
+	}
+}
